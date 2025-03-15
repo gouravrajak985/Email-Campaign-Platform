@@ -5,26 +5,7 @@ import { Mail, Users, Clock, Send, AlertTriangle, ArrowLeft } from 'lucide-react
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
 import useCampaignStore from '../store/campaignStore';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 function CampaignDetails() {
   const { id } = useParams();
@@ -56,50 +37,6 @@ function CampaignDetails() {
         toast.error(result.error);
       }
     }
-  };
-
-  const chartData = {
-    labels: ['Total', 'Sent', 'Opened', 'Clicked', 'Failed'],
-    datasets: [
-      {
-        label: 'Email Statistics',
-        data: [
-          currentCampaign.analytics.totalRecipients,
-          currentCampaign.analytics.sent,
-          currentCampaign.analytics.opened,
-          currentCampaign.analytics.clicked,
-          currentCampaign.analytics.failed
-        ],
-        backgroundColor: [
-          'rgba(53, 162, 235, 0.5)',
-          'rgba(75, 192, 192, 0.5)',
-          'rgba(255, 206, 86, 0.5)',
-          'rgba(54, 162, 235, 0.5)',
-          'rgba(255, 99, 132, 0.5)',
-        ],
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Campaign Analytics',
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 1,
-        },
-      },
-    },
   };
 
   const getStatusColor = (status) => {
@@ -136,7 +73,7 @@ function CampaignDetails() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Campaign Details</CardTitle>
@@ -150,7 +87,7 @@ function CampaignDetails() {
             <div className="flex items-center space-x-2">
               <Users className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Recipients:</span>
-              <span className="text-sm">{currentCampaign.analytics.totalRecipients}</span>
+              <span className="text-sm">{currentCampaign.recipients.length}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -166,34 +103,10 @@ function CampaignDetails() {
                 {currentCampaign.status}
               </span>
             </div>
-
-            {currentCampaign.attachments && currentCampaign.attachments.length > 0 && (
-              <div className="mt-6">
-                <h4 className="text-sm font-medium mb-2">Attachments</h4>
-                <div className="space-y-2">
-                  {currentCampaign.attachments.map((attachment, index) => (
-                    <div key={index} className="flex items-center justify-between py-2 px-3 bg-muted rounded-md">
-                      <span className="text-sm">{attachment.filename}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Campaign Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <Bar data={chartData} options={chartOptions} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Email Content</CardTitle>
           </CardHeader>

@@ -93,16 +93,14 @@ function Campaigns() {
                       </span>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        <span className="text-sm">{campaign.analytics.totalRecipients}</span>
+                        <span className="text-sm">{campaign.recipients.length}</span>
                       </div>
-                      {campaign.scheduledFor && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          <span className="text-sm">
-                            {format(new Date(campaign.scheduledFor), 'PPp')}
-                          </span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="h-4 w-4" />
+                        <span className="text-sm">
+                          {format(new Date(campaign.createdAt), 'PPp')}
+                        </span>
+                      </div>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -112,11 +110,6 @@ function Campaigns() {
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
-                  <div className="mt-2 flex gap-4 text-sm text-muted-foreground">
-                    <span>Sent: {campaign.analytics.sent}</span>
-                    <span>Opened: {campaign.analytics.opened}</span>
-                    <span>Clicked: {campaign.analytics.clicked}</span>
                   </div>
                 </div>
               ))}

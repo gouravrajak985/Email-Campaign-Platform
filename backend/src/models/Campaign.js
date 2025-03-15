@@ -53,13 +53,6 @@ const campaignSchema = new mongoose.Schema({
       default: new Map()
     }
   }],
-  analytics: {
-    totalRecipients: { type: Number, default: 0 },
-    sent: { type: Number, default: 0 },
-    opened: { type: Number, default: 0 },
-    clicked: { type: Number, default: 0 },
-    failed: { type: Number, default: 0 }
-  },
   createdAt: {
     type: Date,
     default: Date.now

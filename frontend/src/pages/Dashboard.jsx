@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart2, Users, Mail, AlertTriangle, Plus } from 'lucide-react';
+import { Mail, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import useCampaignStore from '../store/campaignStore';
+import { useEffect } from 'react';
 
 function Dashboard() {
   const { campaigns, fetchCampaigns, loading } = useCampaignStore();
@@ -15,8 +15,6 @@ function Dashboard() {
   const stats = {
     totalCampaigns: campaigns.length,
     activeCampaigns: campaigns.filter(c => c.status === 'sending').length,
-    totalRecipients: campaigns.reduce((acc, c) => acc + (c.analytics?.totalRecipients || 0), 0),
-    failedDeliveries: campaigns.reduce((acc, c) => acc + (c.analytics?.failed || 0), 0)
   };
 
   const recentCampaigns = campaigns
@@ -44,7 +42,7 @@ function Dashboard() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
@@ -60,34 +58,10 @@ function Dashboard() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
-              <BarChart2 className="h-8 w-8 text-muted-foreground" />
+              <Mail className="h-8 w-8 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Active Campaigns</p>
                 <h2 className="text-3xl font-bold">{stats.activeCampaigns}</h2>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <Users className="h-8 w-8 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Recipients</p>
-                <h2 className="text-3xl font-bold">{stats.totalRecipients}</h2>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-4">
-              <AlertTriangle className="h-8 w-8 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Failed Deliveries</p>
-                <h2 className="text-3xl font-bold">{stats.failedDeliveries}</h2>
               </div>
             </div>
           </CardContent>
@@ -120,18 +94,13 @@ function Dashboard() {
                     <div>
                       <h4 className="font-medium">{campaign.name}</h4>
                       <p className="text-sm text-muted-foreground">
-                        Recipients: {campaign.analytics?.totalRecipients || 0}
+                        Recipients: {campaign.recipients.length}
                       </p>
                     </div>
                     <div className="flex items-center space-x-4">
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(campaign.status)}`}>
                         {campaign.status}
                       </span>
-                      <div className="text-sm text-muted-foreground">
-                        Sent: {campaign.analytics?.sent || 0} |
-                        Opened: {campaign.analytics?.opened || 0} |
-                        Clicked: {campaign.analytics?.clicked || 0}
-                      </div>
                     </div>
                   </div>
                 </Link>
