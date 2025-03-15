@@ -18,6 +18,13 @@ function Sidebar() {
     { name: 'Analytics', href: '/analytics', icon: BarChart2 },
   ];
 
+  const isActiveRoute = (href) => {
+    if (href === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(href);
+  };
+
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
       <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r bg-background px-6 pb-4">
@@ -30,23 +37,20 @@ function Sidebar() {
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" className="-mx-2 space-y-1">
-                {navigation.map((item) => {
-                  const isActive = location.pathname.startsWith(item.href);
-                  return (
-                    <li key={item.name}>
-                      <Button
-                        asChild
-                        variant={isActive ? "secondary" : "ghost"}
-                        className="w-full justify-start"
-                      >
-                        <Link to={item.href}>
-                          <item.icon className="mr-2 h-4 w-4" />
-                          {item.name}
-                        </Link>
-                      </Button>
-                    </li>
-                  );
-                })}
+                {navigation.map((item) => (
+                  <li key={item.name}>
+                    <Button
+                      asChild
+                      variant={isActiveRoute(item.href) ? "secondary" : "ghost"}
+                      className="w-full justify-start"
+                    >
+                      <Link to={item.href}>
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {item.name}
+                      </Link>
+                    </Button>
+                  </li>
+                ))}
               </ul>
             </li>
           </ul>
