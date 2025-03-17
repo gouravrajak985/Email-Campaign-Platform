@@ -40,17 +40,29 @@ const useEmailStore = create((set) => ({
   },
 
   fetchSingleEmails: async () => {
-    set({ loading: true });
+    set({ loading: true, error: null });
     try {
       const response = await axios.get('/campaigns/single-emails');
       set({ 
-        singleEmails: response.data.data.emails,
-        loading: false 
+        singleEmails: response.data.data.emails || [],
+        loading: false,
+        error: null
       });
     } catch (error) {
+      console.error('Error fetching single emails:', error);
+      if (error.response?.status === 401) {
+        set({ 
+          error: 'Please log in to view your emails',
+          loading: false,
+          singleEmails: []
+        });
+        window.location.href = '/login';
+        return;
+      }
       set({ 
         error: error.response?.data?.message || 'Failed to fetch emails',
-        loading: false 
+        loading: false,
+        singleEmails: []
       });
     }
   }

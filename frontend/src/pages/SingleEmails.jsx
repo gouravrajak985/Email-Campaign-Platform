@@ -1,17 +1,52 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Clock, CheckCircle, XCircle, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import useEmailStore from '../store/emailStore';
+import useAuthStore from '../store/authStore';
 
 function SingleEmails() {
-  const { fetchSingleEmails, singleEmails, loading } = useEmailStore();
+  const { fetchSingleEmails, singleEmails, loading, error } = useEmailStore();
+  const { isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchSingleEmails();
-  }, [fetchSingleEmails]);
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    const loadEmails = async () => {
+      await fetchSingleEmails();
+    };
+    loadEmails();
+  }, [isAuthenticated, navigate]);
+
+  if (error) {
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold tracking-tight">Single Emails</h1>
+          <Button asChild>
+            <Link to="/emails/compose">
+              <Plus className="mr-2 h-4 w-4" />
+              Compose Email
+            </Link>
+          </Button>
+        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <XCircle className="h-12 w-12 text-destructive mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Error Loading Emails</h3>
+            <p className="text-muted-foreground text-center mb-4">{error}</p>
+            <Button onClick={fetchSingleEmails}>Try Again</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div>

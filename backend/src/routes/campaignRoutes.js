@@ -7,6 +7,10 @@ const router = express.Router();
 // Protect all routes
 router.use(authMiddleware.protect);
 
+// Single email routes - place these BEFORE the :id routes to prevent param conflicts
+router.post('/send-single', campaignController.sendSingleEmail);
+router.get('/single-emails', campaignController.getSingleEmails);
+
 // Campaign routes
 router
   .route('/')
@@ -20,9 +24,5 @@ router
   .delete(campaignController.deleteCampaign);
 
 router.post('/:id/send', campaignController.sendCampaign);
-
-// Single email routes
-router.post('/send-single', campaignController.sendSingleEmail);
-router.get('/single-emails', campaignController.getSingleEmails);
 
 module.exports = router;

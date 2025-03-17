@@ -8,6 +8,7 @@ const instance = axios.create({
   }
 });
 
+// Request interceptor
 instance.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
@@ -21,11 +22,14 @@ instance.interceptors.request.use(
   }
 );
 
+// Response interceptor
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Clear auth state and redirect to login
       useAuthStore.getState().logout();
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
