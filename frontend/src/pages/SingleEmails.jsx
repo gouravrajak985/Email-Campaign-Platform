@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Clock, CheckCircle, XCircle, Plus } from 'lucide-react';
+import { Mail, Clock, CheckCircle, XCircle, Plus, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -107,7 +107,7 @@ function SingleEmails() {
                         </span>
                       )}
                       <span className="flex items-center text-muted-foreground text-sm">
-                        <Clock className="h-4 w-4 mr-1" />
+                      <Calendar className="h-4 w-4 mr-1" />
                         {format(new Date(email.sentAt), 'PPp')}
                       </span>
                     </div>

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Calendar, Users, Trash2, Plus } from 'lucide-react';
+import { Mail, Calendar,CheckCircle, Users, Trash2, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
@@ -27,11 +27,11 @@ function Campaigns() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      case 'sending': return 'bg-blue-100 text-blue-800';
-      case 'scheduled': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'completed': return 'text-green-600';
+      case 'failed': return 'text-red-600';
+      case 'sending': return 'text-blue-600';
+      case 'scheduled': return 'text-purple-600';
+      default: return 'text-gray-800';
     }
   };
 
@@ -88,7 +88,8 @@ function Campaigns() {
                       </p>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(campaign.status)}`}>
+                      <span className={`px-2.5 py-0.5 flex items-center rounded-full text-xs font-medium ${getStatusColor(campaign.status)}`}>
+                       <CheckCircle className="h-4 w-4 mr-1" />
                         {campaign.status}
                       </span>
                       <div className="flex items-center gap-2 text-muted-foreground">
