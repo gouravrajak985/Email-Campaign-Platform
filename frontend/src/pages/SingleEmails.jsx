@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Clock, CheckCircle, XCircle, Plus, Calendar } from 'lucide-react';
+import { Mail, Clock, CheckCircle, XCircle, Plus, Calendar, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import useEmailStore from '../store/emailStore';
 import useAuthStore from '../store/authStore';
 
 function SingleEmails() {
-  const { fetchSingleEmails, singleEmails, loading, error } = useEmailStore();
+  const { fetchSingleEmails, singleEmails, loading, error, deleteSingleEmail } = useEmailStore();
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -23,6 +24,18 @@ function SingleEmails() {
     };
     loadEmails();
   }, [isAuthenticated, navigate]);
+
+  const handleDelete = async (id, e) => {
+    e.preventDefault(); // Prevent navigation to email details
+    if (window.confirm('Are you sure you want to delete this email?')) {
+      const result = await deleteSingleEmail(id);
+      if (result.success) {
+        toast.success('Email deleted successfully');
+      } else {
+        toast.error(result.error);
+      }
+    }
+  };
 
   if (error) {
     return (
@@ -107,9 +120,17 @@ function SingleEmails() {
                         </span>
                       )}
                       <span className="flex items-center text-muted-foreground text-sm">
-                      <Calendar className="h-4 w-4 mr-1" />
+                        <Calendar className="h-4 w-4 mr-1" />
                         {format(new Date(email.sentAt), 'PPp')}
                       </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive/90"
+                        onClick={(e) => handleDelete(email._id, e)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </Link>

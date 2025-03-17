@@ -39,6 +39,21 @@ const useEmailStore = create((set) => ({
     }
   },
 
+  deleteSingleEmail: async (id) => {
+    try {
+      await axios.delete(`/campaigns/single-emails/${id}`);
+      set(state => ({
+        singleEmails: state.singleEmails.filter(email => email._id !== id)
+      }));
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to delete email' 
+      };
+    }
+  },
+
   fetchSingleEmails: async () => {
     set({ loading: true, error: null });
     try {

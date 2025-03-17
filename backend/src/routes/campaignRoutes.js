@@ -10,6 +10,7 @@ router.use(authMiddleware.protect);
 // Single email routes - place these BEFORE the :id routes to prevent param conflicts
 router.post('/send-single', campaignController.sendSingleEmail);
 router.get('/single-emails', campaignController.getSingleEmails);
+router.delete('/single-emails/:id', campaignController.deleteSingleEmail);
 
 // Campaign routes
 router

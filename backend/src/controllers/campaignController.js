@@ -437,3 +437,29 @@ exports.getSingleEmails = async (req, res) => {
     });
   }
 };
+
+exports.deleteSingleEmail = async (req, res) => {
+  try {
+    const email = await SingleEmail.findOneAndDelete({
+      _id: req.params.id,
+      sender: req.user._id
+    });
+
+    if (!email) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Email not found'
+      });
+    }
+
+    res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: error.message
+    });
+  }
+};
