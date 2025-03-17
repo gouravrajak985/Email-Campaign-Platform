@@ -30,7 +30,7 @@ function Sidebar() {
       <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r bg-background px-6 pb-4">
         <div className="flex h-16 items-center gap-2">
           <Send className="h-6 w-6" />
-          <h2 className="text-xl font-bold">EzyMail</h2>
+          <h2 className="text-xl font-bold">EzzyPost</h2>
         </div>
         
         <nav className="flex flex-1 flex-col">

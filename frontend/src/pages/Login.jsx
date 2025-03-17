@@ -73,7 +73,7 @@ function Login() {
         <div className="flex flex-col items-center mt-8 mb-4">
           <div className="flex items-center gap-2 text-primary">
             <Send className="h-8 w-8" />
-            <h1 className="text-3xl font-bold">EzyMail</h1>
+            <h1 className="text-3xl font-bold">EzzyPost</h1>
           </div>
         </div>
         <CardHeader className="space-y-1">
