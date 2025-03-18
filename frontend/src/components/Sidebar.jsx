@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Mail, BarChart2, LogOut, Send, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Mail, BarChart2, LogOut, Send, MessageSquare, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -15,6 +15,7 @@ function Sidebar() {
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
     { name: 'Campaigns', href: '/campaigns', icon: Mail },
     { name: 'Single Emails', href: '/emails', icon: MessageSquare },
+    { name: 'Contacts', href: '/contacts', icon: Users },
     { name: 'Analytics', href: '/analytics', icon: BarChart2 },
   ];
 

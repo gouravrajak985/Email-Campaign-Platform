@@ -12,6 +12,9 @@ import Analytics from './pages/Analytics';
 import SingleEmails from './pages/SingleEmails';
 import ComposeEmail from './pages/ComposeEmail';
 import EmailDetails from './pages/EmailDetails';
+import Contacts from './pages/Contacts';
+import CreateContact from './pages/CreateContact';
+import EditContact from './pages/EditContact';
 
 function App() {
   return (
@@ -30,6 +33,9 @@ function App() {
             <Route path="/emails" element={<SingleEmails />} />
             <Route path="/emails/compose" element={<ComposeEmail />} />
             <Route path="/emails/:id" element={<EmailDetails />} />
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/contacts/new" element={<CreateContact />} />
+            <Route path="/contacts/:id/edit" element={<EditContact />} />
           </Route>
         </Route>
       </Routes>

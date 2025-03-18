@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const campaignRoutes = require('./routes/campaignRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 // Load environment variables
 require('dotenv').config();
@@ -40,6 +41,7 @@ if (process.env.NODE_ENV === 'development') {
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/campaigns', campaignRoutes);
+app.use('/api/v1/contacts', contactRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
