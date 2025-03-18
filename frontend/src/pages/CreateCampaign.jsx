@@ -1,18 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { Upload, Mail, User, ArrowLeft } from 'lucide-react';
+import { Upload, Mail, User, ArrowLeft, Search, X, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import useCampaignStore from '../store/campaignStore';
+import useContactStore from '../store/contactStore';
 
 const schema = yup.object().shape({
   name: yup.string().required('Campaign name is required'),
@@ -22,65 +37,43 @@ const schema = yup.object().shape({
 function CreateCampaign() {
   const navigate = useNavigate();
   const { createCampaign } = useCampaignStore();
+  const { contacts, fetchContacts } = useContactStore();
   const [emailBody, setEmailBody] = useState('');
   const [loading, setLoading] = useState(false);
-  const [recipients, setRecipients] = useState([{ email: '', firstName: '', lastName: '' }]);
-  const [inputMethod, setInputMethod] = useState('manual');
+  const [selectedContacts, setSelectedContacts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [open, setOpen] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema)
   });
 
-  const addRecipient = () => {
-    setRecipients([...recipients, { email: '', firstName: '', lastName: '' }]);
-  };
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
-  const removeRecipient = (index) => {
-    setRecipients(recipients.filter((_, i) => i !== index));
-  };
+  const filteredContacts = contacts.filter(contact => {
+    const search = searchTerm.toLowerCase();
+    return (
+      contact.email.toLowerCase().includes(search) ||
+      contact.firstName.toLowerCase().includes(search) ||
+      contact.lastName.toLowerCase().includes(search) ||
+      contact.company?.toLowerCase().includes(search)
+    );
+  });
 
-  const updateRecipient = (index, field, value) => {
-    const newRecipients = [...recipients];
-    newRecipients[index] = { ...newRecipients[index], [field]: value };
-    setRecipients(newRecipients);
-  };
-
-  const processRecipientsCsv = async (file) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target.result;
-        const rows = text.split('\n').filter(row => row.trim());
-        const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
-        const recipients = rows.slice(1).map(row => {
-          const values = row.split(',').map(v => v.trim());
-          const recipient = {};
-          headers.forEach((header, i) => {
-            recipient[header] = values[i] || '';
-          });
-          return recipient;
-        });
-        resolve(recipients);
-      };
-      reader.readAsText(file);
+  const toggleContact = (contact) => {
+    setSelectedContacts(prev => {
+      const isSelected = prev.find(c => c._id === contact._id);
+      if (isSelected) {
+        return prev.filter(c => c._id !== contact._id);
+      }
+      return [...prev, contact];
     });
   };
 
-  const validateRecipients = () => {
-    if (recipients.length === 0) {
-      toast.error('At least one recipient is required');
-      return false;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const invalidEmails = recipients.filter(r => !emailRegex.test(r.email));
-    
-    if (invalidEmails.length > 0) {
-      toast.error('Please enter valid email addresses for all recipients');
-      return false;
-    }
-
-    return true;
+  const removeContact = (contactId) => {
+    setSelectedContacts(prev => prev.filter(c => c._id !== contactId));
   };
 
   const onSubmit = async (data) => {
@@ -90,40 +83,26 @@ function CreateCampaign() {
         return;
       }
 
-      if (inputMethod === 'manual' && !validateRecipients()) {
+      if (selectedContacts.length === 0) {
+        toast.error('At least one recipient is required');
         return;
       }
-      
+
       setLoading(true);
-      let finalRecipients = recipients;
 
-      if (inputMethod === 'csv' && data.recipientsCsv?.[0]) {
-        finalRecipients = await processRecipientsCsv(data.recipientsCsv[0]);
-      }
-
-      // Filter out empty recipients and ensure proper formatting
-      finalRecipients = finalRecipients
-        .filter(r => r.email.trim())
-        .map(r => ({
-          email: r.email.trim(),
-          firstName: r.firstName?.trim() || '',
-          lastName: r.lastName?.trim() || ''
-        }));
-
-      if (finalRecipients.length === 0) {
-        toast.error('At least one valid recipient is required');
-        setLoading(false);
-        return;
-      }
+      const recipients = selectedContacts.map(contact => ({
+        email: contact.email,
+        firstName: contact.firstName || '',
+        lastName: contact.lastName || ''
+      }));
 
       const formData = new FormData();
       formData.append('name', data.name);
       formData.append('subject', data.subject);
       formData.append('body', emailBody);
-      formData.append('recipients', JSON.stringify(finalRecipients));
-      console.log(formData)
+      formData.append('recipients', JSON.stringify(recipients));
+
       const result = await createCampaign(formData);
-      console.log(result);
       
       if (result.success) {
         toast.success('Campaign created successfully');
@@ -190,102 +169,78 @@ function CreateCampaign() {
               />
             </div>
 
-            <div className="space-y-4">
-              <Label>Recipients Input Method</Label>
-              <RadioGroup
-                value={inputMethod}
-                onValueChange={setInputMethod}
-                className="flex space-x-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="manual" id="manual" />
-                  <Label htmlFor="manual">Manual Input</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="csv" id="csv" />
-                  <Label htmlFor="csv">CSV Upload</Label>
-                </div>
-              </RadioGroup>
-
-              {inputMethod === 'manual' ? (
-                <div className="space-y-4">
-                  {recipients.map((recipient, index) => (
-                    <Card key={index}>
-                      <CardContent className="pt-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="space-y-2">
-                            <Label>Email</Label>
-                            <div className="relative">
-                              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                type="email"
-                                value={recipient.email}
-                                onChange={(e) => updateRecipient(index, 'email', e.target.value)}
-                                className="pl-10"
-                                placeholder="email@example.com"
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>First Name</Label>
-                            <div className="relative">
-                              <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                type="text"
-                                value={recipient.firstName}
-                                onChange={(e) => updateRecipient(index, 'firstName', e.target.value)}
-                                className="pl-10"
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Last Name</Label>
-                            <div className="relative">
-                              <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                type="text"
-                                value={recipient.lastName}
-                                onChange={(e) => updateRecipient(index, 'lastName', e.target.value)}
-                                className="pl-10"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {recipients.length > 1 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="mt-4 text-destructive hover:text-destructive/90"
-                            onClick={() => removeRecipient(index)}
-                          >
-                            Remove Recipient
-                          </Button>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={addRecipient}
-                  >
-                    Add Recipient
+            <div className="space-y-2">
+              <Label>Recipients</Label>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start">
+                    <Search className="mr-2 h-4 w-4" />
+                    Search contacts...
                   </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Input
-                    type="file"
-                    accept=".csv"
-                    {...register('recipientsCsv')}
-                    className="cursor-pointer"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Upload a CSV file with columns: email, firstName, lastName
-                  </p>
-                </div>
-              )}
+                </DialogTrigger>
+                <DialogContent className="p-0">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Search contacts..." 
+                      value={searchTerm}
+                      onValueChange={setSearchTerm}
+                    />
+                    <CommandList>
+                      <CommandEmpty>No contacts found.</CommandEmpty>
+                      <CommandGroup>
+                        {filteredContacts.map((contact) => (
+                          <CommandItem
+                            key={contact._id}
+                            onSelect={() => {
+                              toggleContact(contact);
+                              setSearchTerm('');
+                            }}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <div>
+                                <p className="font-medium">
+                                  {contact.firstName} {contact.lastName}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {contact.email}
+                                </p>
+                              </div>
+                              {selectedContacts.find(c => c._id === contact._id) ? (
+                                <Check className="h-4 w-4" />
+                              ) : null}
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </DialogContent>
+              </Dialog>
+
+              <div className="mt-2">
+                {selectedContacts.map((contact) => (
+                  <div
+                    key={contact._id}
+                    className="flex items-center justify-between p-2 rounded-md bg-secondary mt-2"
+                  >
+                    <div>
+                      <p className="font-medium">
+                        {contact.firstName} {contact.lastName}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {contact.email}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeContact(contact._id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-2">
